@@ -1,0 +1,63 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../bower_components/e-app-login/e-login-page.html">
+<link rel="import" href="./app-router.html">
+<link rel="import" href="../bower_components/e-styles/e-colors.html">
+<link rel="import" href="../bower_components/e-styles/e-font.html">
+
+<dom-module id="my-app">
+  <style include="e-colors"></style>
+  <style include="e-font"></style>
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        --app-primary-color: var(--e-blue);
+        --app-secondary-color: var(--e-silver);
+        height: 100%;
+      }
+    </style>
+
+    <iron-localstorage name="e-keystore"
+      value="{{key}}"
+    ></iron-localstorage>
+
+    <template is="dom-if" if="{{!key}}">
+      <e-login-page 
+        auth-url="http://localhost:3000/auth" 
+        support-number="1233211234"
+        key="{{key}}">
+      </e-login-page>      
+    </template>
+    <template is="dom-if" if="{{key}}">
+      <app-router key="{{key}}"></app-router>
+    </template>
+  </template>
+
+  <script>
+    // class MyApp {
+    //   beforeRegister( ) {
+    //     this.is         = 'my-app';
+    //     this.properties = {
+    //       key : {
+    //         type : Object,
+    //         notify : true
+    //       },
+    //     };
+    //   }
+    // }
+
+    Polymer( {
+      is : 'my-app',
+      properties : {
+        key : {
+          type : Object,
+          notify : true
+        },
+      }
+    } );
+
+  </script>
+
+</dom-module>

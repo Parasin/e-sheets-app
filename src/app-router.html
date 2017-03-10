@@ -1,0 +1,272 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../bower_components/e-styles/e-colors.html">
+<link rel="import" href="../bower_components/e-styles/e-font.html">
+<link rel="import" href="../bower_components/e-expiry-notice/e-expiry-notice.html">
+<!--<link rel="import" href="my-icons.html">-->
+
+<dom-module id="app-router">
+  <template>
+    <style include="e-colors"></style>
+    <style include="e-font"></style>
+    <style>
+      :host {
+        display: block;
+        --app-primary-color: var(--e-blue);
+        --app-secondary-color: var(--e-black);
+        height: 100% !important;
+      }
+
+      @media (max-width: 640px) {
+        iron-pages {
+          margin: 0px !important;
+        }
+      }
+
+      iron-pages {
+        @apply(--shadow-elevation-2dp);
+        background-color: #fff;
+        color: #757575;
+        overflow: auto;
+      }
+
+      paper-icon-button.account { 
+        position: absolute;
+        right: 20px;
+      }
+
+      app-drawer {
+        /*--app-drawer-width : 200px;*/
+        /*--app-drawer-content-container: {
+          background-color: #EEE !important;
+        }*/
+      }
+           
+      app-header {
+        background-color: var(--app-primary-color);
+        color: #fff;
+      }
+      
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      .drawer-list {
+        margin: 0 20px;
+      }
+      app-drawer a {
+        display: block;
+        padding: 0 16px;
+        line-height: 40px;
+        text-decoration: none;
+        color:#58585a;
+      }
+      .drawer-list a.iron-selected {
+        color:#58585a;
+        font-weight: bold;
+      }
+      .drawer-list a.subroute {
+        padding-left: 32px;
+      }
+
+      paper-dialog {
+        position: fixed;
+        top: 16px;
+        right: 0px;
+        overflow: auto;
+        margin: 30px;
+      }
+
+      .warning {
+        color : #e32119;
+      }
+
+      paper-card {  
+        /*--paper-card-header-text : {
+          font-size: 95%;
+          color : white
+        };*/
+        --paper-card-header-color: #fff;
+        margin: 0px !important;
+        padding: 0px !important;
+      }
+
+      .flex-vertical {
+        @apply(--layout-vertical);
+      }
+
+    </style>
+
+    <iron-localstorage 
+      name="e-error"
+      value="{{error}}">
+    </iron-localstorage>
+
+    <app-location 
+      route="{{route}}">
+    </app-location>
+    
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"
+      tail="{{subroute}}">
+    </app-route>
+
+    <!-- default to use body scroller -->
+    <app-header-layout>
+
+      <app-header reveals effects="waterfall">
+        <app-toolbar>
+          <template is="dom-if" if="{{!_isHome}}">
+            <paper-icon-button icon="arrow-back"></paper-icon-button>
+          </template>
+          <span title class="e">Sheets</span>
+
+          <template is="dom-if" if="{{expiryDetails.warning}}">
+            <span style="font-size:10pt;">{{expiryDetails.message}}</span>
+          </template>
+          
+          <paper-icon-button
+            class$="{{btnClass}}"
+            icon="icons:account-circle"
+            on-tap="_showAccountBubble">
+          </paper-icon-button>
+
+          <paper-dialog style="max-width:450px;" id="alignedDialog" no-overlap>
+            <paper-card image="../images/lightshow.png" heading="[[user.firstname]] [[user.lastname]] ([[user.username]])">
+              <div class="card-content">
+                [[user.email]]
+                <e-expiry-notice frequency="30" when-to-warn="5" expiry-details="{{expiryDetails}}" key="{{key}}"></e-expiry-notice>  
+              </div>
+              <div class="card-actions">
+                <paper-button on-tap="_logout">Logout</paper-button>
+              </div>
+            </paper-card>
+          </paper-dialog>
+
+        </app-toolbar>
+      </app-header>
+
+      <div content class="container flex-vertical">
+        <iron-pages class="flexchild-vertical" role="main" selected="[[page]]" attr-for-selected="name" flex>
+          <home-view view="{{view}}" key="{{key}}" name="home"></home-view>
+          <sheet-view view="{{view}}" key="{{key}}" name="sheet"></sheet-view>
+          <!-- <my-view3 view="{{view}}" key="{{key}}" name="view3"></my-view3> -->
+        </iron-pages>
+      </div>
+    
+    </app-header-layout>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: '',
+
+      properties: {
+
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged'
+        },
+
+        key : {
+          type : Object,
+          notify : true
+        },
+
+        user : {
+          type : Object,
+          notify : true
+        },
+
+        error : {
+          type : Object,
+          notify : true
+        },
+
+      },
+
+      observers: [
+        '_routePageChanged(routeData.page)',
+        '_isWarning(expiryDetails)'
+      ],
+
+      ready : function( ) {
+        // var drawer = this.$$( 'app-drawer' );
+        // console.log( drawer );
+        // if( !drawer.persistent ) drawer.close( );
+      },
+
+      attached : function( ) {
+        this.user = jwt_decode(this.key).user;
+      },
+
+      _routePageChanged: function(page) {
+        this.page = page || 'home';
+      },
+
+      _pageChanged: function(page) {
+        // load page import on demand.
+        this.importHref(
+          this.resolveUrl(page + '.html'), null, null, true);
+      },
+
+      _logout : function( ) {
+        this.key = "";
+        window.location.reload( false );
+      },
+
+      _showAccountBubble : function( e, l ) {
+        console.log( this.user );
+        this.$.alignedDialog.open( );
+      },
+
+      _isWarning : function( expiryDetails ) {
+        // console.log(expiryDetails);
+
+
+        if( expiryDetails.mins <= 2 ) {
+          this.customStyle['--app-primary-color'] = '#e32119';
+        } else if( expiryDetails.mins <= 3 ) {
+          this.customStyle['--app-primary-color'] = '#F08A00';
+        } else if( expiryDetails.mins <= 5 ) {
+          this.customStyle['--app-primary-color'] = '#FABB00';
+        } else {
+          this.customStyle['--app-primary-color'] = '#001F52';
+        }
+
+        this.updateStyles( );
+
+        if( expiryDetails.expired ) {
+          this.error = "Please Login again.  You were logged-out due to inactivity";
+          this._logout( );
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>
