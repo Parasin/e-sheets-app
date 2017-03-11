@@ -1,15 +1,13 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
-<link rel="import" href="../bower_components/paper-progress/paper-progress.html">
-<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/e-styles/e-colors.html">
 <link rel="import" href="../bower_components/e-styles/e-font.html">
-<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
 
 <dom-module id="home-view">
@@ -20,14 +18,200 @@
     <style>
       :host {
         display: block;
-        height: 100%;
-      }  
+      }
+
+      .centered-container {
+        margin-top: 40px;
+        max-width: 1000px;
+        margin: 40px auto;
+      }
+    
+      #newSheets {
+        padding: 1px;
+        background-color: #87888a;
+        color: #F0F1F1;
+      }
+
+      h4 {
+        margin-top: 0px;
+        font-weight: normal;
+      }
+
+      .flex-horizontal {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+      }
+      
+      .flexchild {
+        @apply(--layout-flex);
+      }
+
+      paper-card {
+        width: 240px !important;
+        color : #58585A;
+        font-size: 11pt;
+        --paper-card-header-text : {
+          white-space: nowrap; 
+          width: 200px; 
+          font-size: 11pt;
+          overflow: hidden;
+          text-overflow: ellipsis; 
+        }
+      }
+
+      paper-fab {
+        position: fixed;
+        right: 25px;
+        bottom: 25px;
+        --paper-fab-background : #003258;
+      }
+
+      paper-icon-button {
+        color : #58585A;
+      }
+
+      #search {
+        padding:1.5em;
+        margin:5px;
+        background-color: #E8E8E8;
+        border: 0px;
+        border-radius: 5px;
+      }
+
+      #search:focus { 
+       background-color: #FFFFFF;
+       color : #58585A;
+      }
+
+      ul {
+        padding: 0px;
+      }
+
+      li {
+        margin: 5px;
+        background-color: #FFFFFF;
+        padding: 1em;
+        @apply(--shadow-elevation-2dp);
+      }
     </style>
+
+    <iron-ajax
+      auto
+      id="ia"
+      method="GET"
+      url="http://localhost:9999/spreadsheets?token={{key}}"
+      handle-as="json"
+      on-response="_loadSheets"
+      loading="{{isLoading}}"
+      debounce-duration="300">
+    </iron-ajax>
 
     <iron-localstorage name="e-keystore"
       value="{{key}}">
     </iron-localstorage>
 
+    <iron-localstorage name="e-sheets-view"
+      value="{{isList}}">
+    </iron-localstorage>
+
+    <!--<div id="newSheets">
+      <div class="centered-container">
+        <div class="container flex-horizontal">
+          <h4 class="flexchild" style="margin-left: 5px;">Create a new Sheet</h4>
+          <paper-icon-button icon="expand-more" class="newSheetExpander"></paper-icon-button>
+        </div>
+        <div class="container flex-horizontal">
+          <template is="dom-repeat" items="{{templates}}">
+            <paper-card heading="{{item.name}}" class="flexchild"  style="margin:5px;width: 240px !important;" elevation="1" animated-shadow="false">
+              <div class="card-content">
+                {{item.description}}
+              </div>
+              <div class="card-actions">
+                <paper-icon-button icon="add"></paper-icon-button>
+              </div>
+            </paper-card>
+          </template>
+        </div>
+      </div>
+    </div>-->
+
+    <div class="centered-container" id="content">
+      <h4 style="padding:0px;margin-left:5px;margin-bottom: 0px;">My Sheets</h4> 
+      <div class="container flex-horizontal">
+        <input id="search" value="{{searchString::input}}" placeholder="Search Available Sheets" class="flexchild" />
+        
+        <template is="dom-if" if="{{searchString}}">
+          <paper-icon-button id="clearSearch" icon="close" on-tap="_clearSearch"></paper-icon-button>
+          <paper-tooltip for="clearSearch">Clear Search Value</paper-tooltip>
+        </template>
+        
+        <paper-icon-button id="myFavs" icon="favorite-border"></paper-icon-button>        
+        <paper-tooltip for="myFavs">Show my Favorites!</paper-tooltip>
+        <template is="dom-if" if="{{!isList}}">
+          <paper-icon-button id="showList" icon="view-list" on-tap="_toggleView"></paper-icon-button>
+          <paper-tooltip for="showList">Display as List View</paper-tooltip>
+        </template>
+        <template is="dom-if" if="{{isList}}">
+          <paper-icon-button id="showGrid" icon="dashboard" on-tap="_toggleView"></paper-icon-button>
+          <paper-tooltip for="showGrid">Display as Card View</paper-tooltip>
+        </template>
+      </div>
+
+      <template is="dom-if" if="{{!isList}}">
+
+        <div class="container flex-horizontal">
+          <template is="dom-repeat" items="{{mySheets}}" filter="{{computeFilter(searchString)}}">
+            <!--<div on-tap="_changeSheet" sheet-id="{{item._id}}" class="flexchild">{{item.name}}</div>-->
+            <paper-card heading="{{item.name}}" class="flexchild sheet"  style="margin:5px;" image="" elevation="1" animated-shadow="false">
+              <div class="card-content">
+                {{item.description}}
+              </div>
+              <div class="card-actions">
+                <paper-icon-button 
+                  icon="check"
+                  on-tap="_changeSheet" 
+                  sheet-id="{{item._id}}" >
+                </paper-icon-button>
+                <paper-icon-button 
+                  icon="favorite"
+                  on-tap="_toggleFav" 
+                  sheet-id="{{item._id}}">
+                </paper-icon-button>
+              </div>
+            </paper-card>
+          </template>
+        </div>
+
+      </template>
+
+      <template is="dom-if" if="{{isList}}">
+        <ul>
+          <template is="dom-repeat" items="{{mySheets}}" filter="{{computeFilter(searchString)}}">
+            <li class="container flex-horizontal">
+              <span class="flexchild">
+                <div>{{item.name}}</div>
+                <div style="color:#58585A;">{{item.description}}</div>
+              </span>
+              <paper-icon-button 
+                icon="check"
+                on-tap="_changeSheet" 
+                sheet-id="{{item._id}}" >
+              </paper-icon-button>
+              <paper-icon-button 
+                icon="favorite"
+                on-tap="_toggleFav" 
+                sheet-id="{{item._id}}">
+              </paper-icon-button>
+            </li>
+          </template>
+        </ul>
+      </template>
+    </div>
+  
+    
+    <template is="dom-if" if="{{showFab}}">
+      <paper-fab icon="add"></paper-fab>
+    </template>
   </template>
 
   <script>
@@ -35,11 +219,77 @@
     Polymer( {
       is : 'home-view',
 
-      properties : { },
+      properties : { 
+        sheetId  : {
+          type   : String,
+          notify : true
+        }
+      },
       
-      ready : function( ) { },
+      ready : function( ) { 
+        this.isList = false;
+        this.templates = [
+          { name : "Template 1", description : "A new Thing" },
+          { name : "Template 2", description : "A new Thing" },
+          { name : "Template 3", description : "A new Thing" },
+          { name : "Template 1", description : "A new Thing" },
+        ];
+
+        var contentSection = this.$.content, _this = this;
+        
+        window.addEventListener( 'scroll', function( ) {
+          var isCondensed = document.body.scrollTop !== 0;
+
+          if( contentSection.getBoundingClientRect( ).top < 65 ) {
+            _this.showFab = true;
+            console.log( "show!!!!!" );
+          } else {
+            _this.showFab = false;
+          }
+        } );
+      },
       
-      attached : function( ) { },
+      attached: function() {
+        this._updateGridStyles = this._updateGridStyles || function( ) {
+          this.updateStyles( );
+        }.bind( this );
+
+        window.addEventListener( 'resize', this._updateGridStyles );
+      },
+
+      detached: function( ) {
+        window.removeEventListener( 'resize', this._updateGridStyles );
+      },
+
+      _loadSheets : function( response ) {
+        this.mySheets = response.detail.response.sheets;
+      },
+
+      _changeSheet : function( e ) {
+        this.sheetId = e.model.get( 'item._id' );
+      },
+
+      computeFilter : function( string ) {
+        if ( !string ) {
+          // set filter to null to disable filtering
+          return null;
+        } else {
+          // return a filter function for the current search string
+          string = string.toLowerCase( );
+          return function( sheet ) {
+            var name = sheet.name.toLowerCase( ), desc = sheet.description.toLowerCase( );
+            return ( name.indexOf( string ) != -1 || desc.indexOf( string ) != -1 );
+          };
+        }
+      },
+
+      _toggleView : function( ) {
+        this.isList = !this.isList;
+      },
+
+      _clearSearch : function( ) {
+        this.searchString = "";
+      }
     } );
 
     /*fetch( "http://localhost:8888/user?token=" + this.key, {

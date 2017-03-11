@@ -41,9 +41,9 @@
       }
 
       iron-pages {
-        @apply(--shadow-elevation-2dp);
+        /*@apply(--shadow-elevation-2dp);
         background-color: #fff;
-        color: #757575;
+        color: #757575;*/
         overflow: auto;
       }
 
@@ -135,10 +135,10 @@
 
       <app-header reveals effects="waterfall">
         <app-toolbar>
-          <template is="dom-if" if="{{!_isHome}}">
-            <paper-icon-button icon="arrow-back"></paper-icon-button>
+          <template is="dom-if" if="{{isSheet}}">
+            <paper-icon-button icon="arrow-back" on-tap="_goHome"></paper-icon-button>
           </template>
-          <span title class="e">Sheets</span>
+          <span title class="e" style="width:100%;">ERICSSON.A&A.Sheets</span>
 
           <template is="dom-if" if="{{expiryDetails.warning}}">
             <span style="font-size:10pt;">{{expiryDetails.message}}</span>
@@ -167,8 +167,8 @@
 
       <div content class="container flex-vertical">
         <iron-pages class="flexchild-vertical" role="main" selected="[[page]]" attr-for-selected="name" flex>
-          <home-view view="{{view}}" key="{{key}}" name="home"></home-view>
-          <sheet-view view="{{view}}" key="{{key}}" name="sheet"></sheet-view>
+          <home-view view="{{view}}" key="{{key}}" name="home" sheet-id="{{sheetId}}"></home-view>
+          <sheet-view view="{{view}}" key="{{key}}" name="sheet" sheet-id="{{sheetId}}"></sheet-view>
           <!-- <my-view3 view="{{view}}" key="{{key}}" name="view3"></my-view3> -->
         </iron-pages>
       </div>
@@ -210,13 +210,12 @@
 
       observers: [
         '_routePageChanged(routeData.page)',
-        '_isWarning(expiryDetails)'
+        '_isWarning(expiryDetails)',
+        '_sheetSelected(sheetId)'
       ],
 
       ready : function( ) {
-        // var drawer = this.$$( 'app-drawer' );
-        // console.log( drawer );
-        // if( !drawer.persistent ) drawer.close( );
+        
       },
 
       attached : function( ) {
@@ -224,7 +223,7 @@
       },
 
       _routePageChanged: function(page) {
-        this.page = page || 'home';
+        this.page    = page || 'home';
       },
 
       _pageChanged: function(page) {
@@ -244,9 +243,6 @@
       },
 
       _isWarning : function( expiryDetails ) {
-        // console.log(expiryDetails);
-
-
         if( expiryDetails.mins <= 2 ) {
           this.customStyle['--app-primary-color'] = '#e32119';
         } else if( expiryDetails.mins <= 3 ) {
@@ -263,6 +259,17 @@
           this.error = "Please Login again.  You were logged-out due to inactivity";
           this._logout( );
         }
+      },
+
+      _sheetSelected : function( sheet ) {
+        this.isSheet = true;
+        this.page = 'sheet';
+      },
+
+      _goHome : function( ) {
+        this.sheetId = null;
+        this.page    = 'home';
+        this.isSheet = false;
       }
 
     });

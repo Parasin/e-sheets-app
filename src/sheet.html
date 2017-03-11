@@ -9,7 +9,6 @@
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/e-spread-sheet/e-spread-sheet.html">
 
 <dom-module id="sheet-view">
@@ -24,26 +23,16 @@
       }  
     </style>
 
-    <app-location 
-      route="{{route}}">
-    </app-location>
-
-    <app-route
-      id="route"
-      route="{{route}}"
-      pattern="/:page"
-      data="{{routeData}}"
-      tail="{{subroute}}">
-    </app-route>
-
     <iron-localstorage name="e-keystore"
       value="{{key}}">
     </iron-localstorage>
 
     <e-spread-sheet
-      title="My Sheet"
-      sheet-id="{{_id}}"
-      url="http://localhost:9999/spreadsheets">
+      title="Loading your Sheet..."
+      sheet-id="{{sheetId}}"
+      url="http://localhost:9999/spreadsheets"
+      token="{{key}}"
+      payload={{payload}}>
     </e-spread-sheet>
   </template>
 
@@ -52,26 +41,26 @@
     Polymer( {
       is : 'sheet-view',
 
-      properties : { },
+      properties : { 
+        sheetId  : {
+          type   : String
+        },
+
+        payload  : Object
+      },
+
+      observers: [
+        '_payloadChanged(payload)'
+      ],
       
       ready : function( ) { },
       
-      attached : function( ) { 
-        this._id = this.$.route.tail.path.replace( "/", "" );
+      attached : function( ) { },
 
-        console.log( this._id );
-      },
+      _payloadChanged : function( payload ) {
+        console.log( payload );
+      }
     } );
-
-    /*fetch( "http://localhost:8888/user?token=" + this.key, {
-        method : 'GET',
-        mode   : 'cors'
-      } ).then( ( res ) => {
-        return res.json( );
-      } ).then( ( json ) => {
-        this.users = json.users;
-      } );*/
-
   </script>
 
 </dom-module>
