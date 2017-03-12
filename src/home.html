@@ -3,12 +3,15 @@
 <link rel="import" href="../bower_components/e-styles/e-font.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/paper-styles/shadow.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
 
 <dom-module id="home-view">
   <template>
@@ -93,6 +96,10 @@
         padding: 1em;
         @apply(--shadow-elevation-2dp);
       }
+
+      paper-dialog {
+        width : 45%;
+      }
     </style>
 
     <iron-ajax
@@ -114,11 +121,15 @@
       value="{{isList}}">
     </iron-localstorage>
 
-    <!--<div id="newSheets">
+    <iron-localstorage name="e-sheets-favorites"
+      value="{{myFavs}}">
+    </iron-localstorage>
+
+    <div id="newSheets">
       <div class="centered-container">
         <div class="container flex-horizontal">
           <h4 class="flexchild" style="margin-left: 5px;">Create a new Sheet</h4>
-          <paper-icon-button icon="expand-more" class="newSheetExpander"></paper-icon-button>
+          <!--<paper-icon-button icon="expand-more" class="newSheetExpander"></paper-icon-button>-->
         </div>
         <div class="container flex-horizontal">
           <template is="dom-repeat" items="{{templates}}">
@@ -127,13 +138,13 @@
                 {{item.description}}
               </div>
               <div class="card-actions">
-                <paper-icon-button icon="add"></paper-icon-button>
+                <paper-icon-button icon="add" on-tap="_openNewWizard"></paper-icon-button>
               </div>
             </paper-card>
           </template>
         </div>
       </div>
-    </div>-->
+    </div>
 
     <div class="centered-container" id="content">
       <h4 style="padding:0px;margin-left:5px;margin-bottom: 0px;">My Sheets</h4> 
@@ -173,7 +184,7 @@
                   sheet-id="{{item._id}}" >
                 </paper-icon-button>
                 <paper-icon-button 
-                  icon="favorite"
+                  icon="favorite-border"
                   on-tap="_toggleFav" 
                   sheet-id="{{item._id}}">
                 </paper-icon-button>
@@ -212,6 +223,19 @@
     <template is="dom-if" if="{{showFab}}">
       <paper-fab icon="add"></paper-fab>
     </template>
+
+    <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <h2>New Sheet Wizard</h2>
+      <p>Awesome!!!  Before we can create your sheet, we need a few pieces of information.  Complete the form below to get going!</p>
+      
+      <paper-input label="Title your Sheet"></paper-input>
+      <paper-input label="Give a quick description"></paper-input>
+      
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -228,11 +252,13 @@
       
       ready : function( ) { 
         this.isList = false;
+        this.myFavs = [ ];
+
         this.templates = [
-          { name : "Template 1", description : "A new Thing" },
-          { name : "Template 2", description : "A new Thing" },
-          { name : "Template 3", description : "A new Thing" },
-          { name : "Template 1", description : "A new Thing" },
+          { name : "Blank Spreadsheet", description : "Start from Scratch; create your own!" },
+          { name : "Template 2", description : "Some sort of starting point for you!" },
+          { name : "Template 3", description : "Another starting point for you to use." },
+          { name : "Template 1", description : "A last thing that gets you rolling!" },
         ];
 
         var contentSection = this.$.content, _this = this;
@@ -249,7 +275,7 @@
         } );
       },
       
-      attached: function() {
+      attached: function( ) {
         this._updateGridStyles = this._updateGridStyles || function( ) {
           this.updateStyles( );
         }.bind( this );
@@ -289,6 +315,17 @@
 
       _clearSearch : function( ) {
         this.searchString = "";
+      },
+
+      _openNewWizard : function( ) {
+        this.$.animated.open( );
+      },
+
+      _toggleFav : function( e ) {
+        var id = e.model.get( "item._id" );
+
+        console.log( this.myFavs );
+
       }
     } );
 
