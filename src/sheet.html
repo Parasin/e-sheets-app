@@ -19,10 +19,9 @@
     <style>
       :host {
         display: block;
-        height: 100%;
       }  
       e-spread-sheet {
-        height : 95vh;
+        
       }
     </style>
 
@@ -33,7 +32,7 @@
     <e-spread-sheet
       title="Loading your Sheet..."
       sheet-id="{{sheetId}}"
-      url="http://localhost:9999/spreadsheets"
+      url="https://e-spreadsheet-service.herokuapp.com/spreadsheets"
       token="{{key}}"
       payload={{payload}}>
     </e-spread-sheet>

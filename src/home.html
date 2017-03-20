@@ -106,7 +106,7 @@
       auto
       id="ia"
       method="GET"
-      url="http://localhost:9999/spreadsheets?token={{key}}"
+      url="https://e-spreadsheet-service.herokuapp.com/spreadsheets?token={{key}}"
       handle-as="json"
       on-response="_loadSheets"
       loading="{{isLoading}}"
@@ -304,7 +304,7 @@
           string = string.toLowerCase( );
           return function( sheet ) {
             var name = sheet.name.toLowerCase( ), desc = sheet.description.toLowerCase( );
-            return ( name.indexOf( string ) != -1 || desc.indexOf( string ) != -1 );
+            return ( name.indexOf( string ) !== -1 || desc.indexOf( string ) !== -1 );
           };
         }
       },
