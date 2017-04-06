@@ -49,7 +49,7 @@
         overflow: auto;
       }
 
-      paper-icon-button.account { 
+      paper-icon-button.account {
         position: absolute;
         right: 20px;
       }
@@ -60,12 +60,12 @@
           background-color: #EEE !important;
         }*/
       }
-           
+
       app-header {
         background-color: var(--app-primary-color);
         color: #fff;
       }
-      
+
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
       }
@@ -100,7 +100,7 @@
         color : #e32119;
       }
 
-      paper-card {  
+      paper-card {
         /*--paper-card-header-text : {
           font-size: 95%;
           color : white
@@ -129,7 +129,7 @@
         <app-toolbar>
           <img src="../images/ericsson-logo-dark.png" style="width:150px;margin:auto;" alt="">
         </app-toolbar>
-        
+
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="users" href="/users">Users</a>
           <a name="view2" href="/view2">Applications</a>
@@ -145,11 +145,11 @@
             <paper-icon-button icon="menu"></paper-icon-button>
             <span title class="e">E-Sheets</span>
 
-            
+
             <template is="dom-if" if="{{expiryDetails.warning}}">
               <span style="font-size:10pt;">{{expiryDetails.message}}</span>
             </template>
-            
+
             <paper-icon-button
               class$="{{btnClass}}"
               icon="icons:account-circle"
@@ -160,7 +160,7 @@
               <paper-card image="../images/lightshow.png" heading="[[user.firstname]] [[user.lastname]] ([[user.username]])">
                 <div class="card-content">
                   [[user.email]]
-                  <e-expiry-notice frequency="30" when-to-warn="5" expiry-details="{{expiryDetails}}" key="{{key}}"></e-expiry-notice>  
+                  <e-expiry-notice frequency="30" when-to-warn="5" expiry-details="{{expiryDetails}}" key="{{key}}"></e-expiry-notice>
                 </div>
                 <div class="card-actions">
                   <paper-button on-tap="_logout">Logout</paper-button>

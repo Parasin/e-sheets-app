@@ -19,9 +19,9 @@
     <style>
       :host {
         display: block;
-      }  
+      }
       e-spread-sheet {
-        
+
       }
     </style>
 
@@ -43,7 +43,7 @@
     Polymer( {
       is : 'sheet-view',
 
-      properties : { 
+      properties : {
         sheetId  : {
           type   : String
         },
@@ -54,9 +54,9 @@
       observers: [
         '_payloadChanged(payload)'
       ],
-      
+
       ready : function( ) { },
-      
+
       attached : function( ) { },
 
       _payloadChanged : function( payload ) {

@@ -24,11 +24,11 @@
     ></iron-localstorage>
 
     <template is="dom-if" if="{{!key}}">
-      <e-login-page 
-        auth-url="https://e-auth-service.herokuapp.com/auth" 
+      <e-login-page
+        auth-url="https://e-auth-service.herokuapp.com/auth"
         support-number="1233211234"
         key="{{key}}">
-      </e-login-page>      
+      </e-login-page>
     </template>
     <template is="dom-if" if="{{key}}">
       <app-router key="{{key}}"></app-router>
