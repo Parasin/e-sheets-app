@@ -28,7 +28,7 @@
         max-width: 1000px;
         margin: 40px auto;
       }
-    
+
       #newSheets {
         padding: 1px;
         background-color: #87888a;
@@ -44,7 +44,7 @@
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
       }
-      
+
       .flexchild {
         @apply(--layout-flex);
       }
@@ -54,11 +54,11 @@
         color : #58585A;
         font-size: 11pt;
         --paper-card-header-text : {
-          white-space: nowrap; 
-          width: 200px; 
+          white-space: nowrap;
+          width: 200px;
           font-size: 11pt;
           overflow: hidden;
-          text-overflow: ellipsis; 
+          text-overflow: ellipsis;
         }
       }
 
@@ -81,7 +81,7 @@
         border-radius: 5px;
       }
 
-      #search:focus { 
+      #search:focus {
        background-color: #FFFFFF;
        color : #58585A;
       }
@@ -103,15 +103,38 @@
     </style>
 
     <iron-ajax
-      auto
-      id="ia"
-      method="GET"
-      url="https://e-spreadsheet-service.herokuapp.com/spreadsheets?token={{key}}"
-      handle-as="json"
-      on-response="_loadSheets"
-      loading="{{isLoading}}"
-      debounce-duration="300">
+        auto
+        id="ia"
+        method="GET"
+        url="https://e-spreadsheet-service.herokuapp.com/spreadsheets?token={{key}}"
+        handle-as="json"
+        on-response="_loadSheets"
+        loading="{{isLoading}}"
+        debounce-duration="300">
     </iron-ajax>
+
+    <iron-ajax
+        auto
+        id="ia-tempGet"
+        method="GET"
+        url="https://e-spreadsheet-service.herokuapp.com/templates?token={{key}}"
+        handle-as="json"
+        on-response="_loadTemplates"
+        loading="{{isLoading}}"
+        debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+        id="ia-tempCreate"
+        method="POST"
+        url="https://e-spreadsheet-service.herokuapp.com/templates?token={{key}}"
+        body=""
+        handle-as="json"
+        on-response=""
+        loading="{{isLoading}}"
+        debounce-duration="300">
+    </iron-ajax>
+
 
     <iron-localstorage name="e-keystore"
       value="{{key}}">
@@ -147,16 +170,16 @@
     </div>
 
     <div class="centered-container" id="content">
-      <h4 style="padding:0px;margin-left:5px;margin-bottom: 0px;">My Sheets</h4> 
+      <h4 style="padding:0px;margin-left:5px;margin-bottom: 0px;">My Sheets</h4>
       <div class="container flex-horizontal">
         <input id="search" value="{{searchString::input}}" placeholder="Search Available Sheets" class="flexchild" />
-        
+
         <template is="dom-if" if="{{searchString}}">
           <paper-icon-button id="clearSearch" icon="close" on-tap="_clearSearch"></paper-icon-button>
           <paper-tooltip for="clearSearch">Clear Search Value</paper-tooltip>
         </template>
-        
-        <paper-icon-button id="myFavs" icon="favorite-border"></paper-icon-button>        
+
+        <paper-icon-button id="myFavs" icon="favorite-border"></paper-icon-button>
         <paper-tooltip for="myFavs">Show my Favorites!</paper-tooltip>
         <template is="dom-if" if="{{!isList}}">
           <paper-icon-button id="showList" icon="view-list" on-tap="_toggleView"></paper-icon-button>
@@ -178,14 +201,14 @@
                 {{item.description}}
               </div>
               <div class="card-actions">
-                <paper-icon-button 
+                <paper-icon-button
                   icon="check"
-                  on-tap="_changeSheet" 
+                  on-tap="_changeSheet"
                   sheet-id="{{item._id}}" >
                 </paper-icon-button>
-                <paper-icon-button 
+                <paper-icon-button
                   icon="favorite-border"
-                  on-tap="_toggleFav" 
+                  on-tap="_toggleFav"
                   sheet-id="{{item._id}}">
                 </paper-icon-button>
               </div>
@@ -203,14 +226,14 @@
                 <div>{{item.name}}</div>
                 <div style="color:#58585A;">{{item.description}}</div>
               </span>
-              <paper-icon-button 
+              <paper-icon-button
                 icon="check"
-                on-tap="_changeSheet" 
+                on-tap="_changeSheet"
                 sheet-id="{{item._id}}" >
               </paper-icon-button>
-              <paper-icon-button 
+              <paper-icon-button
                 icon="favorite"
-                on-tap="_toggleFav" 
+                on-tap="_toggleFav"
                 sheet-id="{{item._id}}">
               </paper-icon-button>
             </li>
@@ -218,8 +241,8 @@
         </ul>
       </template>
     </div>
-  
-    
+
+
     <template is="dom-if" if="{{showFab}}">
       <paper-fab icon="add"></paper-fab>
     </template>
@@ -227,10 +250,10 @@
     <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
       <h2>New Sheet Wizard</h2>
       <p>Awesome!!!  Before we can create your sheet, we need a few pieces of information.  Complete the form below to get going!</p>
-      
+
       <paper-input label="Title your Sheet"></paper-input>
       <paper-input label="Give a quick description"></paper-input>
-      
+
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -243,26 +266,27 @@
     Polymer( {
       is : 'home-view',
 
-      properties : { 
+      properties : {
         sheetId  : {
           type   : String,
           notify : true
         }
       },
-      
-      ready : function( ) { 
+
+      ready : function( ) {
         this.isList = false;
         this.myFavs = [ ];
 
-        this.templates = [
+        /* Uncomment to use "static" template data */
+        /*this.templates = [
           { name : "Blank Spreadsheet", description : "Start from Scratch; create your own!" },
           { name : "Template 2", description : "Some sort of starting point for you!" },
           { name : "Template 3", description : "Another starting point for you to use." },
           { name : "Template 1", description : "A last thing that gets you rolling!" },
-        ];
+        ];*/
 
         var contentSection = this.$.content, _this = this;
-        
+
         window.addEventListener( 'scroll', function( ) {
           var isCondensed = document.body.scrollTop !== 0;
 
@@ -274,7 +298,7 @@
           }
         } );
       },
-      
+
       attached: function( ) {
         this._updateGridStyles = this._updateGridStyles || function( ) {
           this.updateStyles( );
@@ -289,6 +313,10 @@
 
       _loadSheets : function( response ) {
         this.mySheets = response.detail.response.sheets;
+      },
+
+      _loadTemplates : function( response ) {
+          this.templates = response.detail.response.templates;
       },
 
       _changeSheet : function( e ) {

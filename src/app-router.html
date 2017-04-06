@@ -46,7 +46,7 @@
         overflow: auto;
       }
 
-      paper-icon-button.account { 
+      paper-icon-button.account {
         position: absolute;
         right: 20px;
       }
@@ -57,12 +57,12 @@
           background-color: #EEE !important;
         }*/
       }
-           
+
       app-header {
         background-color: var(--app-primary-color);
         color: #fff;
       }
-      
+
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
       }
@@ -97,7 +97,7 @@
         color : #e32119;
       }
 
-      paper-card {  
+      paper-card {
         /*--paper-card-header-text : {
           font-size: 95%;
           color : white
@@ -113,15 +113,15 @@
 
     </style>
 
-    <iron-localstorage 
+    <iron-localstorage
       name="e-error"
       value="{{error}}">
     </iron-localstorage>
 
-    <app-location 
+    <app-location
       route="{{route}}">
     </app-location>
-    
+
     <app-route
       route="{{route}}"
       pattern="/:page"
@@ -137,12 +137,13 @@
           <template is="dom-if" if="{{isSheet}}">
             <paper-icon-button icon="arrow-back" on-tap="_goHome"></paper-icon-button>
           </template>
+          <img src="/images/ECON_white_72px.png" style="height: 35px; margin-right: 10px">
           <span title class="e" style="width:100%;">ERICSSON.A&A.Sheets</span>
 
           <template is="dom-if" if="{{expiryDetails.warning}}">
             <span style="font-size:10pt;">{{expiryDetails.message}}</span>
           </template>
-          
+
           <paper-icon-button
             class$="{{btnClass}}"
             icon="icons:account-circle"
@@ -153,7 +154,7 @@
             <paper-card image="../images/lightshow.png" heading="[[user.firstname]] [[user.lastname]] ([[user.username]])">
               <div class="card-content">
                 [[user.email]]
-                <e-expiry-notice frequency="30" when-to-warn="5" expiry-details="{{expiryDetails}}" key="{{key}}"></e-expiry-notice>  
+                <e-expiry-notice frequency="30" when-to-warn="5" expiry-details="{{expiryDetails}}" key="{{key}}"></e-expiry-notice>
               </div>
               <div class="card-actions">
                 <paper-button on-tap="_logout">Logout</paper-button>
@@ -171,7 +172,7 @@
           <!-- <my-view3 view="{{view}}" key="{{key}}" name="view3"></my-view3> -->
         </iron-pages>
       </div>
-    
+
     </app-header-layout>
 
   </template>
@@ -214,7 +215,7 @@
       ],
 
       ready : function( ) {
-        
+
       },
 
       attached : function( ) {
